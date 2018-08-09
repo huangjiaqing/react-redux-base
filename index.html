@@ -74,6 +74,10 @@
       return (
         React.createElement('div', null,
           React.createElement('div', null,
+            // 这个状态作为参数传入createElement函数，并存放于vdom上，而不是放在真实的dom上（真实的DOM是由ReactDOM.render渲染的。）
+            // 当该状态变化时，想生成新的vdom，就需要重新调用一下createElement。
+            // 在React机制中，如果视图想根据新的状态发生变化，则需要调用setState 来触发 re-render。
+            // 整个流程就是： setState => render => createElement => vdom
             store.getState().count
           ),
           React.createElement('button', {
