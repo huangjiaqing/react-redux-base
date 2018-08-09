@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <title>react-redux-base</title>
+  <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+</head>
+<body>
+  <div id="#root"></div>
+  <script>
+  class Store {
+    constructor(reducer, preloadedState) {
+      this.currentReducer = reducer;
+      this.currentState = preloadedState;
+      this.listeners = [];
+    }
+
+    getState() {
+      let self = this;
+      return self.currentState;
+    }
+
+    subscribe(listener) {
+      let self = this;
+      self.listeners.push(listener);
+
+      return function unsubscribe() {
+        const index = nextListeners.indexOf(listener);
+        nextListeners.splice(index, 1);
+      }
+    }
+
+    dispatch(action) {
+      let self = this;
+      self.currentState = self.currentReducer(self.currentState, action);
+
+      for (let i = 0; i < self.listeners.length; i++) {
+        self.listeners[i]();
+      }
+
+      return action;
+    }
+  }
+
+  const store = new Store(
+    (state, action) => {
+      switch (action.type) {
+        case 'INC':
+          return {
+            ...state,
+            count: state.count + 1
+          };
+          break;
+        default:
+          return state;
+      }
+    },
+    { count: 0 }
+  );
+
+  class Count extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = {};
+    }
+
+    componentDidMount() {
+      store.subscribe(() => this.setState({}));
+    }
+
+    render() {
+      return (
+        React.createElement('div', null,
+          React.createElement('div', null,
+            store.getState().count
+          ),
+          React.createElement('button', {
+            onClick: () => store.dispatch({ type: 'INC' })
+          }, '增加')
+        )
+      )
+    }
+  }
+
+  ReactDOM.render(
+    React.createElement(Count),
+    document.getElementById('#root')
+  );
+  </script>
+</body>
+</html>
